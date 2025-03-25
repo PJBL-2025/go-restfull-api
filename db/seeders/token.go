@@ -11,8 +11,8 @@ var secretKey = []byte("secret")
 
 func TokenSeeder() {
 	claims := jwt.MapClaims{
-		"id":    4,
-		"role":  "admin",
+		"id":    1,
+		"role":  "user",
 		"email": "jrocket@example.com",
 		"exp":   time.Now().Add(time.Hour * 24).Unix(),
 	}

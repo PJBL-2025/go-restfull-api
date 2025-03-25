@@ -3,6 +3,7 @@ package services
 import (
 	"restfull-api-pjbl-2025/app/repositories"
 	"restfull-api-pjbl-2025/model"
+	"restfull-api-pjbl-2025/model/dto"
 	"strconv"
 )
 
@@ -14,7 +15,7 @@ func NewChatServiceImpl(chatRepository repositories.ChatsRepository) *ChatServic
 	return &ChatServiceImpl{chatRepository: chatRepository}
 }
 
-func (service *ChatServiceImpl) GetAllChatsUser(UserId int, role string, queryId string) ([]*model.Chat, error) {
+func (service *ChatServiceImpl) GetAllChatsUser(UserId int, role string, queryId string) ([]*dto.ResponseChat, error) {
 	AdminId, err := service.chatRepository.GetAdminId()
 	if err != nil {
 		return nil, err
