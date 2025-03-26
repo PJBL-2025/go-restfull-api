@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"net/http"
 	"restfull-api-pjbl-2025/config"
 	"restfull-api-pjbl-2025/router"
-	"restfull-api-pjbl-2025/ws"
 )
 
 func main() {
@@ -36,11 +34,6 @@ func main() {
 	}))
 
 	router.SetUpRoutes(app, chatController)
-
-	go func() {
-		http.HandleFunc("/ws", ws.WebSocketHub.HandleConnections)
-		fmt.Println(http.ListenAndServe(":8081", nil))
-	}()
 
 	fmt.Println("success")
 
