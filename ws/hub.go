@@ -2,14 +2,9 @@ package ws
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
-	"net/http"
+	"github.com/gofiber/websocket/v2"
 	"sync"
 )
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
-}
 
 type Client struct {
 	Conn    *websocket.Conn
@@ -26,22 +21,16 @@ var WebSocketHub = &Hub{
 	clients: make(map[*Client]bool),
 }
 
-func (h *Hub) HandleConnections(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("Gagal upgrade ke WebSocket:", err)
-		return
-	}
-
-	userID := r.URL.Query().Get("user_id")
-	adminID := r.URL.Query().Get("admin_id")
+func (h *Hub) HandleConnections(c *websocket.Conn) {
+	userID := c.Query("user_id")
+	adminID := c.Query("admin_id")
 
 	var uid, aid int
 	fmt.Sscanf(userID, "%d", &uid)
 	fmt.Sscanf(adminID, "%d", &aid)
 
 	client := &Client{
-		Conn:    conn,
+		Conn:    c,
 		UserID:  uid,
 		AdminID: aid,
 	}
@@ -54,16 +43,14 @@ func (h *Hub) HandleConnections(w http.ResponseWriter, r *http.Request) {
 		h.mu.Lock()
 		delete(h.clients, client)
 		h.mu.Unlock()
-		conn.Close()
+		c.Close()
 	}()
 
 	for {
 		var msg map[string]interface{}
-		err := conn.ReadJSON(&msg)
-		if err != nil {
+		if err := c.ReadJSON(&msg); err != nil {
 			break
 		}
-
 		h.BroadcastMessage(msg, uid, aid)
 	}
 }
@@ -74,8 +61,7 @@ func (h *Hub) BroadcastMessage(msg map[string]interface{}, userID, adminID int) 
 
 	for client := range h.clients {
 		if client.UserID == userID || client.AdminID == adminID {
-			err := client.Conn.WriteJSON(msg)
-			if err != nil {
+			if err := client.Conn.WriteJSON(msg); err != nil {
 				client.Conn.Close()
 				delete(h.clients, client)
 			}
