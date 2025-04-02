@@ -22,7 +22,7 @@ func (repo *ChatRepositoryImpl) GetAllChats(UserId int, AdminId int) ([]*dto.Res
 	err := repo.db.Table("chats").
 		Joins("LEFT JOIN products on products.id = chats.product_id").
 		Joins("LEFT JOIN product_images on product_images.product_id = products.id").
-		Select("chats.id as id, chats.message as message, chats.user_id as user_id,products.name as name, products.price as price, MIN(product_images.image_path) as image_path").
+		Select("chats.id as id, chats.message as message, chats.user_id as user_id,products.name as name, products.price as price,chats.role_message as role_message, MIN(product_images.image_path) as image_path").
 		Where("chats.user_id = ? AND chats.admin_id = ?", UserId, AdminId).
 		Group("chats.id").
 		Find(&Chats).Error

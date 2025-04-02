@@ -5,6 +5,7 @@ import './App.css'
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import Chat from "./pages/Chat.jsx";
 import Payment from "./pages/Payment.jsx";
+import Token from "./pages/Token.jsx";
 
 
 function App() {
@@ -16,6 +17,10 @@ function App() {
         {
             path:"/payment",
             element:<Payment/>
+        },
+        {
+            path:"/token",
+            element: <Token/>
         }
     ])
   return (

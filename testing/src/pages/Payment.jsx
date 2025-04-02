@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import axios from "axios";
 
 const Payment = () => {
     const [paymentStatus, setPaymentStatus] = useState(null);
+    const priceRef = useRef()
+    const token = localStorage.getItem("token")
 
     useEffect(() => {
         // Memuat snap.js dari Midtrans setelah komponen di-mount
@@ -24,7 +26,7 @@ const Payment = () => {
             const response = await axios.patch(`http://localhost:3000/api/payment/${id}`,{status: status} ,{
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJleHAiOjE3NDM1NTg2MTYsImlkIjoxLCJyb2xlIjoidXNlciJ9.BiITaB7urkChyqTXd2tW-EsJ_zRPbOVPNsGHtvL7Tt8"
+                    "Authorization": `Bearer ${token}`
                 }
             })
         } catch (e){
@@ -33,19 +35,21 @@ const Payment = () => {
     }
 
     const handlePayment = async () => {
-        await axios.post(
-            "http://localhost:3000/api/payment",
-            {
-                total_price: 100000,
+        const data =   {
+                total_price: parseInt(priceRef.current.value),
                 product_id: 1,
                 quantity: 2,
                 address_id: 1,
                 payment_method: "credit_card"
-            },
+            }
+            console.log(data)
+        await axios.post(
+            "http://localhost:3000/api/payment",
+            data,
             {
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJleHAiOjE3NDM1NTg2MTYsImlkIjoxLCJyb2xlIjoidXNlciJ9.BiITaB7urkChyqTXd2tW-EsJ_zRPbOVPNsGHtvL7Tt8"
+                    "Authorization": `Bearer ${token}`
                 }
             }
         )
@@ -90,7 +94,7 @@ const Payment = () => {
     return (
         <div>
             <h2>Pembayaran Midtrans</h2>
-            <p>Total Harga: <strong>Rp 100.000</strong></p>
+            <input  ref={priceRef}/>
 
             <button id="pay-button" onClick={handlePayment}>Bayar Sekarang</button>
 
