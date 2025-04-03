@@ -1,4 +1,4 @@
-package seeders
+package helper
 
 import (
 	"fmt"

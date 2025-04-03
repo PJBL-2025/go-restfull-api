@@ -51,11 +51,12 @@ func (repo *ChatRepositoryImpl) CreateChats(chat *model.Chat) error {
 	}
 
 	message := map[string]interface{}{
-		"id":         chat.Id,
-		"user_id":    chat.UserId,
-		"admin_id":   chat.AdminId,
-		"message":    chat.Message,
-		"product_id": chat.ProductId,
+		"id":           chat.Id,
+		"user_id":      chat.UserId,
+		"admin_id":     chat.AdminId,
+		"role_message": chat.RoleMessage,
+		"message":      chat.Message,
+		"product_id":   chat.ProductId,
 	}
 	ws.WebSocketHub.BroadcastMessage(message, chat.UserId, chat.AdminId)
 
