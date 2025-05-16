@@ -11,4 +11,5 @@ type CheckoutsService interface {
 	SetDelivery(delivery *dto.SetDelivery, deliveryId int) error
 	SetStatusDelivery(status map[string]interface{}) error
 	GetCheckout(param string, userId int) ([]map[string]interface{}, error)
+	GetDetailCheckoutProduct(productCheckoutId int) (map[string]interface{}, error)
 }

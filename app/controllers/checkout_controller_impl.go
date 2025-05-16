@@ -102,3 +102,17 @@ func (controller *CheckoutsControllerImpl) GetCheckout(ctx *fiber.Ctx) error {
 
 	return helper.SuccessResponse(ctx, data, "Success Get Checkout")
 }
+
+func (controller *CheckoutsControllerImpl) GetDetailProductCheckout(ctx *fiber.Ctx) error {
+	productCheckoutId, err := ctx.ParamsInt("id")
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Parse product checkout id fail", err)
+	}
+
+	data, err := controller.checkoutService.GetDetailCheckoutProduct(productCheckoutId)
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Fail Get checkout product", err)
+	}
+
+	return helper.SuccessResponse(ctx, data, "Success Get Checkout Product")
+}
