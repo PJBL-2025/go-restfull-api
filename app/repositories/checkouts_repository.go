@@ -17,4 +17,5 @@ type CheckoutsRepository interface {
 	SetStatusDelivery(status map[string]interface{}) error
 	GetCheckoutPending(param string, userId int) ([]map[string]interface{}, error)
 	GetCheckoutNotPending(param string, userId int) ([]map[string]interface{}, error)
+	GetDetailProductCheckout(productCheckoutId int) ([]map[string]interface{}, error)
 }

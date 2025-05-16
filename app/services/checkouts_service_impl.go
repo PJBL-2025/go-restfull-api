@@ -174,3 +174,36 @@ func (service *CheckoutServiceImpl) GetCheckout(param string, userId int) ([]map
 		return service.checkoutRepository.GetCheckoutNotPending(param, userId)
 	}
 }
+
+func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId int) (map[string]interface{}, error) {
+	data, err := service.checkoutRepository.GetDetailProductCheckout(productCheckoutId)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("data not found")
+	}
+
+	result := map[string]interface{}{
+		"name_product":    data[0]["product_name"],
+		"price":           data[0]["price"],
+		"date":            data[0]["date"],
+		"name_user":       data[0]["user_name"],
+		"checkout_status": data[0]["checkout_status"],
+		"image_path":      data[0]["image_path"],
+		"order_id":        data[0]["order_id"],
+		"product":         []map[string]interface{}{},
+	}
+
+	var products []map[string]interface{}
+	for _, item := range data {
+		productItem := map[string]interface{}{
+			"status": item["delivery_status"],
+		}
+		products = append(products, productItem)
+	}
+
+	result["product"] = products
+	return result, nil
+}

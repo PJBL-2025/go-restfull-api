@@ -10,4 +10,5 @@ type CheckoutsController interface {
 	SetDelivery(ctx *fiber.Ctx) error
 	SetStatusDelivery(ctx *fiber.Ctx) error
 	GetCheckout(ctx *fiber.Ctx) error
+	GetDetailProductCheckout(ctx *fiber.Ctx) error
 }

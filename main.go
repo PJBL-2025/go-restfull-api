@@ -23,7 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	config.SeedFlag(db)
+	config.SeedFlag()
 	chatController, checkoutController := config.DependencyInjection(config.DB, snapClient)
 
 	app := fiber.New()
