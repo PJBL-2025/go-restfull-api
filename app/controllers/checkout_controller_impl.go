@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"restfull-api-pjbl-2025/app/services"
 	"restfull-api-pjbl-2025/helper"
-	"restfull-api-pjbl-2025/model"
+	"restfull-api-pjbl-2025/model/dto"
 )
 
 type CheckoutsControllerImpl struct {
@@ -15,67 +16,89 @@ func NewCheckoutsControllerImpl(checkoutService services.CheckoutsService) *Chec
 	return &CheckoutsControllerImpl{checkoutService: checkoutService}
 }
 
-func (controller *CheckoutsControllerImpl) CreatePaymentUser(ctx *fiber.Ctx) error {
-	var payment *model.Checkout
+func (controller *CheckoutsControllerImpl) CreateOrderProduct(ctx *fiber.Ctx) error {
+	var checkout map[string]interface{}
 	userId := ctx.Locals("userId").(int)
 
-	err := ctx.BodyParser(&payment)
+	err := ctx.BodyParser(&checkout)
 	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Fail Create Payment", err)
+		return helper.ErrorResponse(ctx, 400, "Parser request", err)
 	}
 
-	err = controller.checkoutService.CreateOrderUser(userId, payment)
+	paymentURL, snapToken, err := controller.checkoutService.CreateOrderUser(userId, &checkout)
 	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Fail Create Payment", err)
-	}
-
-	paymentURL, snapToken, err := controller.checkoutService.CreatePaymentUser(payment.Id, payment.TotalPrice)
-	if err != nil {
-		return helper.ErrorResponse(ctx, 500, "Midtrans error", err)
+		return helper.ErrorResponse(ctx, 400, "Fail Create order", err)
 	}
 
 	response := map[string]interface{}{
 		"payment_url": paymentURL,
 		"snap_token":  snapToken,
-		"order":       payment,
 	}
 
 	return helper.SuccessResponse(ctx, response, "Success Checkout")
 }
 
-func (controller *CheckoutsControllerImpl) UpdateStatusPaymentUser(ctx *fiber.Ctx) error {
-	orderId, err := ctx.ParamsInt("id")
+func (controller *CheckoutsControllerImpl) UpdateStatusCheckout(ctx *fiber.Ctx) error {
+	var checkout *dto.RequestUpdateCheckout
+	err := ctx.BodyParser(&checkout)
 	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Fail Update Payment", err)
+		return helper.ErrorResponse(ctx, 400, "Parser request fails", err)
 	}
 
-	type Request struct {
-		Status string `json:"status"`
-	}
-	var request *Request
-	err = ctx.BodyParser(&request)
+	err = controller.checkoutService.UpdateStatusCheckout(checkout)
 	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Fail Parse Data", err)
+		return helper.ErrorResponse(ctx, 400, "Fail Update checkout", err)
 	}
 
-	err = controller.checkoutService.UpdateStatusPaymentUser(orderId, request.Status)
-	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Fail Update Payment", err)
-	}
-
-	return helper.SuccessResponse(ctx, request, "Success Update Payment")
+	return helper.SuccessResponse(ctx, "", "Success Update Status")
 }
 
-func (controller *CheckoutsControllerImpl) GetPaymentUserById(ctx *fiber.Ctx) error {
-	orderId, err := ctx.ParamsInt("id")
+func (controller *CheckoutsControllerImpl) SetDelivery(ctx *fiber.Ctx) error {
+	var delivery dto.SetDelivery
+
+	deliveryId, err := ctx.ParamsInt("id")
 	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Fail Get Payment", err)
+		return helper.ErrorResponse(ctx, 400, "Parse delivery id fail", err)
 	}
 
-	data, err := controller.checkoutService.GetPaymentUserById(orderId)
+	err = ctx.BodyParser(&delivery)
 	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Fail Get Payment", err)
+		return helper.ErrorResponse(ctx, 400, "Parser request fails", err)
 	}
 
-	return helper.SuccessResponse(ctx, data, "Success Get Payment")
+	err = controller.checkoutService.SetDelivery(&delivery, deliveryId)
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Fail Update checkout", err)
+	}
+	return helper.SuccessResponse(ctx, "", "Success Set Delivery")
+}
+
+func (controller *CheckoutsControllerImpl) SetStatusDelivery(ctx *fiber.Ctx) error {
+	var status map[string]interface{}
+
+	err := ctx.BodyParser(&status)
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Parser request fails", err)
+	}
+
+	err = controller.checkoutService.SetStatusDelivery(status)
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Fail Update Status Delivery", err)
+	}
+
+	return helper.SuccessResponse(ctx, "", "Success Set Status Delivery")
+
+}
+
+func (controller *CheckoutsControllerImpl) GetCheckout(ctx *fiber.Ctx) error {
+	userId := ctx.Locals("userId").(int)
+	param := ctx.Params("status")
+	fmt.Println(param)
+
+	data, err := controller.checkoutService.GetCheckout(param, userId)
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Fail Get checkout", err)
+	}
+
+	return helper.SuccessResponse(ctx, data, "Success Get Checkout")
 }

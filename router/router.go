@@ -12,9 +12,11 @@ func SetUpRoutes(app *fiber.App, chatController controllers.ChatsController, che
 	api := app.Group("/api", middleware.AuthMiddleware())
 	api.Post("/chat/user", chatController.CreateChatsUser)
 	api.Get("/chat/user", chatController.GetAllChatsUser)
-	api.Post("/payment", checkoutController.CreatePaymentUser)
-	api.Patch("/payment/:id", checkoutController.UpdateStatusPaymentUser)
-	api.Get("/payment", checkoutController.GetPaymentUserById)
+	api.Post("/order", checkoutController.CreateOrderProduct)
+	api.Patch("/order/update", checkoutController.UpdateStatusCheckout)
+	api.Get("/order/:status", checkoutController.GetCheckout)
+	api.Patch("/order/delivery/:id", checkoutController.SetDelivery)
+	api.Post("/order/delivery/status", checkoutController.SetStatusDelivery)
 
 	app.Get("/ws/chat", websocket.New(ws.WebSocketHub.HandleConnections))
 }

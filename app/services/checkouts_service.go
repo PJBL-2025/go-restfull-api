@@ -1,10 +1,14 @@
 package services
 
-import "restfull-api-pjbl-2025/model"
+import (
+	"restfull-api-pjbl-2025/model/dto"
+)
 
 type CheckoutsService interface {
-	CreateOrderUser(userId int, order *model.Checkout) error
-	CreatePaymentUser(orderId int, totalPrice int) (string, string, error)
-	UpdateStatusPaymentUser(orderId int, status string) error
-	GetPaymentUserById(orderID int) (*model.Checkout, error)
+	CreateOrderUser(userId int, checkout *map[string]interface{}) (string, string, error)
+	CreateOrderCustom(productCheckout []interface{}, checkoutId int) error
+	UpdateStatusCheckout(checkout *dto.RequestUpdateCheckout) error
+	SetDelivery(delivery *dto.SetDelivery, deliveryId int) error
+	SetStatusDelivery(status map[string]interface{}) error
+	GetCheckout(param string, userId int) ([]map[string]interface{}, error)
 }

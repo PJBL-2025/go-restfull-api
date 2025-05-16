@@ -3,6 +3,7 @@ package repositories
 import (
 	"gorm.io/gorm"
 	"restfull-api-pjbl-2025/model"
+	"restfull-api-pjbl-2025/model/dto"
 )
 
 type CheckoutRepositoryImpl struct {
@@ -15,8 +16,92 @@ func NewCheckoutRepositoryImpl(db *gorm.DB) *CheckoutRepositoryImpl {
 	}
 }
 
-func (repo *CheckoutRepositoryImpl) CreatePayment(order *model.Checkout) error {
-	err := repo.db.Table("checkout").Create(order).Error
+func (repo *CheckoutRepositoryImpl) CreateCheckout(userId int, totalPrice int, addressId int, orderId int) (int, error) {
+	checkout := model.Checkout{
+		TotalPrice: totalPrice,
+		AddressId:  addressId,
+		UserId:     userId,
+		Status:     "pending",
+		OrderId:    orderId,
+	}
+
+	err := repo.db.Table("checkouts").Create(&checkout).Error
+	if err != nil {
+		return 0, err
+	}
+	return checkout.Id, nil
+}
+
+func (repo *CheckoutRepositoryImpl) InsertSnapToken(checkoutId int, snap string) error {
+	err := repo.db.Table("checkouts").Where("id", checkoutId).Update("snap_token", snap).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *CheckoutRepositoryImpl) CreateOrder(order *model.ProductCheckout) (int, error) {
+
+	err := repo.db.Table("product_checkout").Create(&order).Error
+	if err != nil {
+		return 0, err
+	}
+	return order.Id, nil
+}
+
+func (repo *CheckoutRepositoryImpl) CreateProductCustom(custom map[string]interface{}, productId int) error {
+	custom["product_id"] = productId
+
+	err := repo.db.Table("product_custom").Create(custom).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *CheckoutRepositoryImpl) CreateDelivery(checkoutId int) (int, error) {
+	delivery := model.Delivery{
+		CheckoutId: checkoutId,
+	}
+
+	err := repo.db.Table("deliveries").Create(&delivery).Error
+	if err != nil {
+		return 0, err
+	}
+	return delivery.Id, nil
+}
+
+func (repo *CheckoutRepositoryImpl) CreateStatusDelivery(status string, deliveryId int) error {
+	statusDelivery := model.StatusDelivery{
+		Status:       status,
+		DeliveriesId: deliveryId,
+	}
+
+	err := repo.db.Table("delivery_status").Create(&statusDelivery).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *CheckoutRepositoryImpl) UpdateStatusCheckout(checkout *dto.RequestUpdateCheckout) error {
+	err := repo.db.Table("checkouts").Where("checkouts.id = ?", checkout.CheckoutId).Update("status", checkout.Status).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *CheckoutRepositoryImpl) SetDelivery(delivery *dto.SetDelivery, deliveryId int) error {
+	err := repo.db.Table("deliveries").Where("id", deliveryId).Updates(&delivery).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *CheckoutRepositoryImpl) SetStatusDelivery(status map[string]interface{}) error {
+	err := repo.db.Table("delivery_status").Create(status).Error
 	if err != nil {
 		return err
 	}
@@ -24,20 +109,40 @@ func (repo *CheckoutRepositoryImpl) CreatePayment(order *model.Checkout) error {
 	return nil
 }
 
-func (repo *CheckoutRepositoryImpl) UpdateStatusPayment(orderId int, status string) error {
-	err := repo.db.Table("checkout").Where("id = ?", orderId).Update("status", status).Error
-	if err != nil {
-		return err
-	}
+func (repo *CheckoutRepositoryImpl) GetCheckoutPending(param string, userId int) ([]map[string]interface{}, error) {
+	var data []map[string]interface{}
 
-	return nil
-}
+	err := repo.db.Table("checkouts").
+		Joins("LEFT JOIN product_checkout on product_checkout.checkout_id = checkouts.id").
+		Joins("LEFT JOIN products on products.id = product_checkout.product_id").
+		Joins("LEFT JOIN product_images on product_images.product_id = products.id").
+		Select("checkouts.id as id,product_checkout.type as type, checkouts.order_id as order_id, checkouts.total_price as total_price, products.name as name, product_checkout.price as price, product_checkout.quantity as quantity, MIN(product_images.image_path) as image_path").
+		Where("checkouts.user_id = ? AND checkouts.status = ?", userId, param).
+		Group("checkouts.order_id, checkouts.id,product_checkout.type , products.name, product_checkout.price, product_checkout.quantity").
+		Find(&data).Error
 
-func (repo *CheckoutRepositoryImpl) GetPaymentById(orderID int) (*model.Checkout, error) {
-	var checkout *model.Checkout
-	err := repo.db.Table("checkout").Where("id = ?", orderID).First(&checkout).Error
 	if err != nil {
 		return nil, err
 	}
-	return checkout, nil
+
+	return data, nil
+}
+
+func (repo *CheckoutRepositoryImpl) GetCheckoutNotPending(param string, userId int) ([]map[string]interface{}, error) {
+	var data []map[string]interface{}
+
+	err := repo.db.Table("checkouts").
+		Joins("LEFT JOIN product_checkout ON product_checkout.checkout_id = checkouts.id").
+		Joins("LEFT JOIN products ON products.id = product_checkout.product_id").
+		Joins("LEFT JOIN product_images ON product_images.product_id = products.id").
+		Select("checkouts.status as status,product_checkout.type as type, products.name as name, product_checkout.price as price, product_checkout.quantity as quantity, MIN(product_images.image_path) as image_path").
+		Where("checkouts.user_id = ? AND checkouts.status = ?", userId, param).
+		Group("checkouts.status, products.name,product_checkout.type , product_checkout.price, product_checkout.quantity").
+		Find(&data).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }

@@ -5,7 +5,9 @@ import (
 )
 
 type CheckoutsController interface {
-	CreatePaymentUser(ctx *fiber.Ctx) error
-	UpdateStatusPaymentUser(ctx *fiber.Ctx) error
-	GetPaymentUserById(ctx *fiber.Ctx) error
+	CreateOrderProduct(ctx *fiber.Ctx) error
+	UpdateStatusCheckout(ctx *fiber.Ctx) error
+	SetDelivery(ctx *fiber.Ctx) error
+	SetStatusDelivery(ctx *fiber.Ctx) error
+	GetCheckout(ctx *fiber.Ctx) error
 }
