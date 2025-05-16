@@ -3,12 +3,11 @@ package config
 import (
 	"flag"
 	"fmt"
-	"gorm.io/gorm"
 	"os"
 	"restfull-api-pjbl-2025/db/seeders"
 )
 
-func SeedFlag(db *gorm.DB) {
+func SeedFlag() {
 	seedToken := flag.Bool("token", false, "token")
 
 	flag.Parse()
