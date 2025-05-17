@@ -24,6 +24,7 @@ func NewCheckoutServiceImpl(checkoutRepository repositories.CheckoutsRepository,
 }
 
 func (service *CheckoutServiceImpl) CreateOrderUser(userId int, checkout *map[string]interface{}) (string, string, error) {
+	fmt.Println("CreateOrderUser")
 	orderId := helper.GenerateOrderID()
 	totalPrice := int((*checkout)["total_price"].(float64))
 	addressId := int((*checkout)["address_id"].(float64))
@@ -102,13 +103,14 @@ func (service *CheckoutServiceImpl) CreateOrderCustom(productCheckout []interfac
 }
 
 func (service *CheckoutServiceImpl) UpdateStatusCheckout(checkout *dto.RequestUpdateCheckout) error {
-
-	if checkout.Status == "process" {
+	fmt.Println("cek")
+	if checkout.Status == "processing" {
 		deliveryId, err := service.checkoutRepository.CreateDelivery(checkout.CheckoutId)
 		if err != nil {
 			return err
 		}
 
+		fmt.Println("test")
 		err = service.checkoutRepository.CreateStatusDelivery("Pesanan Sedang Di Kemas", deliveryId)
 		if err != nil {
 			return err
