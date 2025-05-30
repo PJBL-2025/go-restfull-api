@@ -5,11 +5,13 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"time"
 )
 
 var DB *gorm.DB
 
 func LoadConfig() {
+	viper.AutomaticEnv()
 	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -30,10 +32,17 @@ func ConnectDB() *gorm.DB {
 		username, password, host, port, database)
 
 	var err error
+	maxRetries := 10
 
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic(err)
+	for i := 0; i < maxRetries; i++ {
+		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		if err == nil {
+			fmt.Println("✅ Database connected!")
+			return DB
+		}
+		fmt.Printf("⏳ Attempt %d: failed to connect to DB: %v\n", i+1, err)
+		time.Sleep(3 * time.Second)
 	}
-	return DB
+
+	panic("🔥 Could not connect to database after retries")
 }

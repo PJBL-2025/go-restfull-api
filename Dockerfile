@@ -16,4 +16,4 @@ COPY . .
 RUN go build -o main .
 
 # Jalankan binary ketika container di-start
-CMD ["./main", "-token"]
+CMD ["./main"]
