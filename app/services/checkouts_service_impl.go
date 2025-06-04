@@ -195,6 +195,7 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 		"checkout_status": data[0]["checkout_status"],
 		"image_path":      data[0]["image_path"],
 		"order_id":        data[0]["order_id"],
+		"address":         data[0]["address"],
 		"product":         []map[string]interface{}{},
 	}
 
@@ -207,5 +208,92 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 	}
 
 	result["product"] = products
+	return result, nil
+}
+
+func (service *CheckoutServiceImpl) GetDetailCheckoutProductAdmin(productCheckoutId int) (map[string]interface{}, error) {
+	data, err := service.checkoutRepository.GetDetailProductCheckoutAdmin(productCheckoutId)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("data not found")
+	}
+
+	result := map[string]interface{}{
+		"id":          data[0]["id"],
+		"order_id":    data[0]["order_id"],
+		"status":      data[0]["status"],
+		"total_price": data[0]["total_price"],
+		"snap_token":  data[0]["snap_token"],
+	}
+
+	result["user"] = map[string]interface{}{
+		"name":     data[0]["name"],
+		"username": data[0]["username"],
+	}
+
+	result["address"] = map[string]interface{}{
+		"address":          data[0]["address"],
+		"zip_code":         data[0]["zip_code"],
+		"destination_code": data[0]["destination_code"],
+		"receiver_area":    data[0]["receiver_area"],
+	}
+
+	deliveryStatusSet := map[string]struct{}{}
+	var deliveryStatuses []string
+
+	for _, item := range data {
+		if statusStr, ok := item["status"].(string); ok {
+			if _, exists := deliveryStatusSet[statusStr]; !exists {
+				deliveryStatusSet[statusStr] = struct{}{}
+				deliveryStatuses = append(deliveryStatuses, statusStr)
+			}
+		}
+	}
+
+	result["deliveries"] = map[string]interface{}{
+		"send_start_time": data[0]["send_start_time"],
+		"send_end_time":   data[0]["send_end_time"],
+		"delivey_status":  deliveryStatuses,
+	}
+
+	var productCheckouts []map[string]interface{}
+
+	for _, item := range data {
+		product := map[string]interface{}{
+			"quantity": item["quantity"],
+			"size":     item["size"],
+			"color":    item["color"],
+			"type":     item["type"],
+			"price":    item["price"],
+			"image":    item["image_path"],
+		}
+
+		if item["type"] == "custom" {
+			product["product_custom"] = map[string]interface{}{
+				"front_image_path": item["front_image_path"],
+				"back_image_path":  item["back_image_path"],
+				"front_width":      item["front_width"],
+				"back_width":       item["back_width"],
+			}
+		}
+
+		productCheckouts = append(productCheckouts, product)
+	}
+
+	result["product_checkout"] = productCheckouts
+
+	return result, nil
+}
+
+func (service *CheckoutServiceImpl) GetCheckoutsAdmin() ([]map[string]interface{}, error) {
+	result, err := service.checkoutRepository.GetCheckoutsAdmin()
+
+	if err != nil {
+		return nil, err
+	}
+
 	return result, nil
 }

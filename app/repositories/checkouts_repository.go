@@ -18,4 +18,6 @@ type CheckoutsRepository interface {
 	GetCheckoutPending(param string, userId int) ([]map[string]interface{}, error)
 	GetCheckoutNotPending(param string, userId int) ([]map[string]interface{}, error)
 	GetDetailProductCheckout(productCheckoutId int) ([]map[string]interface{}, error)
+	GetDetailProductCheckoutAdmin(productCheckoutId int) ([]map[string]interface{}, error)
+	GetCheckoutsAdmin() ([]map[string]interface{}, error)
 }

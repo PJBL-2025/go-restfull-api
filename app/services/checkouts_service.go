@@ -12,4 +12,6 @@ type CheckoutsService interface {
 	SetStatusDelivery(status map[string]interface{}) error
 	GetCheckout(param string, userId int) ([]map[string]interface{}, error)
 	GetDetailCheckoutProduct(productCheckoutId int) (map[string]interface{}, error)
+	GetDetailCheckoutProductAdmin(productCheckoutId int) (map[string]interface{}, error)
+	GetCheckoutsAdmin() ([]map[string]interface{}, error)
 }

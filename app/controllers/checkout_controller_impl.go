@@ -110,9 +110,33 @@ func (controller *CheckoutsControllerImpl) GetDetailProductCheckout(ctx *fiber.C
 	}
 
 	data, err := controller.checkoutService.GetDetailCheckoutProduct(productCheckoutId)
+
 	if err != nil {
 		return helper.ErrorResponse(ctx, 400, "Fail Get checkout product", err)
 	}
 
 	return helper.SuccessResponse(ctx, data, "Success Get Checkout Product")
+}
+
+func (controller *CheckoutsControllerImpl) GetDetailProductCheckoutAdmin(ctx *fiber.Ctx) error {
+	productCheckoutId, err := ctx.ParamsInt("id")
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Parse product checkout id fail", err)
+	}
+
+	data, err := controller.checkoutService.GetDetailCheckoutProductAdmin(productCheckoutId)
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Fail Get checkout product", err)
+	}
+
+	return helper.SuccessResponse(ctx, data, "Success Get Checkout Product")
+}
+
+func (controller *CheckoutsControllerImpl) GetCheckoutsAdmin(ctx *fiber.Ctx) error {
+	data, err := controller.checkoutService.GetCheckoutsAdmin()
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Fail Get checkout admin", err)
+	}
+
+	return helper.SuccessResponse(ctx, data, "Success Get Checkout Admin")
 }

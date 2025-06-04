@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  app:
+    build: ./go-restfull-api
+    container_name: pjbl-api-go
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    environment:
+      DB_USERNAME: root
+      DB_PASSWORD: 12345678
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: pjbl_2025
+      APP_PORT: 3000
+      MIDTRANS_SERVER_KEY: SB-Mid-server-wSBZ8fGsgIfFnOY0BUgxl-0q
+      MIDTRANS_CLIENT_KEY: SB-Mid-client-4QrX96IqdLRFJZ0_
+      MIDTRANS_ENVIRONMENT: sandbox
+#    volumes:
+#      - .:/app
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: pjbl-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: pjbl_2025
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pjbl-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+
+volumes:
+  dbdata:
