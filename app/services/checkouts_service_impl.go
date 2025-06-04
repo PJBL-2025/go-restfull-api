@@ -152,6 +152,7 @@ func (service *CheckoutServiceImpl) GetCheckout(param string, userId int) ([]map
 					"id":          id,
 					"order_id":    row["order_id"],
 					"total_price": row["total_price"],
+					"snap_token":  row["snap_token"],
 					"product":     []map[string]interface{}{},
 				}
 			}

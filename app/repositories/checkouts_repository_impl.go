@@ -116,7 +116,7 @@ func (repo *CheckoutRepositoryImpl) GetCheckoutPending(param string, userId int)
 		Joins("LEFT JOIN product_checkout on product_checkout.checkout_id = checkouts.id").
 		Joins("LEFT JOIN products on products.id = product_checkout.product_id").
 		Joins("LEFT JOIN product_images on product_images.product_id = products.id").
-		Select("checkouts.id as id,product_checkout.type as type, checkouts.order_id as order_id, checkouts.total_price as total_price, products.name as name, product_checkout.price as price, product_checkout.quantity as quantity, MIN(product_images.image_path) as image_path").
+		Select("checkouts.snap_token as snap_token,checkouts.id as id,product_checkout.type as type, checkouts.order_id as order_id, checkouts.total_price as total_price, products.name as name, product_checkout.price as price, product_checkout.quantity as quantity, MIN(product_images.image_path) as image_path").
 		Where("checkouts.user_id = ? AND checkouts.status = ?", userId, param).
 		Group("checkouts.order_id, checkouts.id,product_checkout.type,product_checkout.id,products.id, products.name, product_checkout.price, product_checkout.quantity").
 		Find(&data).Error
