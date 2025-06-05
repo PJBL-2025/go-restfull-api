@@ -6,6 +6,7 @@ import (
 	"restfull-api-pjbl-2025/app/services"
 	"restfull-api-pjbl-2025/helper"
 	"restfull-api-pjbl-2025/model/dto"
+	"time"
 )
 
 type CheckoutsControllerImpl struct {
@@ -74,14 +75,18 @@ func (controller *CheckoutsControllerImpl) SetDelivery(ctx *fiber.Ctx) error {
 }
 
 func (controller *CheckoutsControllerImpl) SetStatusDelivery(ctx *fiber.Ctx) error {
-	var status map[string]interface{}
+	var status struct {
+		Status     string    `json:"status"`
+		CreatedAt  time.Time `json:"created_at"`
+		DeliveryId int       `json:"deliveries_id"`
+	}
 
 	err := ctx.BodyParser(&status)
 	if err != nil {
 		return helper.ErrorResponse(ctx, 400, "Parser request fails", err)
 	}
 
-	err = controller.checkoutService.SetStatusDelivery(status)
+	err = controller.checkoutService.SetStatusDelivery(status.Status, status.CreatedAt, status.DeliveryId)
 	if err != nil {
 		return helper.ErrorResponse(ctx, 400, "Fail Update Status Delivery", err)
 	}
@@ -110,21 +115,6 @@ func (controller *CheckoutsControllerImpl) GetDetailProductCheckout(ctx *fiber.C
 	}
 
 	data, err := controller.checkoutService.GetDetailCheckoutProduct(productCheckoutId)
-
-	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Fail Get checkout product", err)
-	}
-
-	return helper.SuccessResponse(ctx, data, "Success Get Checkout Product")
-}
-
-func (controller *CheckoutsControllerImpl) GetDetailProductCheckoutAdmin(ctx *fiber.Ctx) error {
-	productCheckoutId, err := ctx.ParamsInt("id")
-	if err != nil {
-		return helper.ErrorResponse(ctx, 400, "Parse product checkout id fail", err)
-	}
-
-	data, err := controller.checkoutService.GetDetailCheckoutProductAdmin(productCheckoutId)
 	if err != nil {
 		return helper.ErrorResponse(ctx, 400, "Fail Get checkout product", err)
 	}

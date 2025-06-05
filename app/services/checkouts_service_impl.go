@@ -9,6 +9,7 @@ import (
 	"restfull-api-pjbl-2025/model"
 	"restfull-api-pjbl-2025/model/dto"
 	"strconv"
+	"time"
 )
 
 type CheckoutServiceImpl struct {
@@ -129,90 +130,57 @@ func (service *CheckoutServiceImpl) SetDelivery(delivery *dto.SetDelivery, deliv
 	return service.checkoutRepository.SetDelivery(delivery, deliveryId)
 }
 
-func (service *CheckoutServiceImpl) SetStatusDelivery(status map[string]interface{}) error {
-	return service.checkoutRepository.SetStatusDelivery(status)
+func (service *CheckoutServiceImpl) SetStatusDelivery(status string, createdAt time.Time, deliveryId int) error {
+	createdAt = time.Now()
+	err := service.checkoutRepository.SetStatusDelivery(status, createdAt, deliveryId)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 func (service *CheckoutServiceImpl) GetCheckout(param string, userId int) ([]map[string]interface{}, error) {
 	var flatData []map[string]interface{}
 	var err error
 
-	if param == "pending" {
-		flatData, err = service.checkoutRepository.GetCheckoutPending(param, userId)
-		if err != nil {
-			return nil, err
-		}
-
-		grouped := map[int]map[string]interface{}{}
-
-		for _, row := range flatData {
-			id := int(row["id"].(int32))
-
-			if _, exists := grouped[id]; !exists {
-				grouped[id] = map[string]interface{}{
-					"id":          id,
-					"order_id":    row["order_id"],
-					"total_price": row["total_price"],
-					"snap_token":  row["snap_token"],
-					"product":     []map[string]interface{}{},
-				}
-			}
-			product := map[string]interface{}{
-				"name":       row["name"],
-				"price":      row["price"],
-				"quantity":   row["quantity"],
-				"type":       row["type"],
-				"image_path": row["image_path"],
-			}
-			grouped[id]["product"] = append(grouped[id]["product"].([]map[string]interface{}), product)
-		}
-
-		var result []map[string]interface{}
-		for _, item := range grouped {
-			result = append(result, item)
-		}
-
-		return result, nil
-
-	} else {
-		return service.checkoutRepository.GetCheckoutNotPending(param, userId)
-	}
-}
-
-func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId int) (map[string]interface{}, error) {
-	data, err := service.checkoutRepository.GetDetailProductCheckout(productCheckoutId)
+	flatData, err = service.checkoutRepository.GetCheckout(param, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(data) == 0 {
-		return nil, fmt.Errorf("data not found")
-	}
+	grouped := map[int]map[string]interface{}{}
 
-	result := map[string]interface{}{
-		"name_product":    data[0]["product_name"],
-		"price":           data[0]["price"],
-		"date":            data[0]["date"],
-		"name_user":       data[0]["user_name"],
-		"checkout_status": data[0]["checkout_status"],
-		"image_path":      data[0]["image_path"],
-		"order_id":        data[0]["order_id"],
-		"address":         data[0]["address"],
-		"product":         []map[string]interface{}{},
-	}
+	for _, row := range flatData {
+		id := int(row["id"].(int32))
 
-	var products []map[string]interface{}
-	for _, item := range data {
-		productItem := map[string]interface{}{
-			"status": item["delivery_status"],
+		if _, exists := grouped[id]; !exists {
+			grouped[id] = map[string]interface{}{
+				"id":          id,
+				"order_id":    row["order_id"],
+				"total_price": row["total_price"],
+				"snap_token":  row["snap_token"],
+				"product":     []map[string]interface{}{},
+			}
 		}
-		products = append(products, productItem)
+		product := map[string]interface{}{
+			"name":       row["name"],
+			"price":      row["price"],
+			"quantity":   row["quantity"],
+			"type":       row["type"],
+			"image_path": row["image_path"],
+		}
+		grouped[id]["product"] = append(grouped[id]["product"].([]map[string]interface{}), product)
 	}
 
-	result["product"] = products
+	var result []map[string]interface{}
+	for _, item := range grouped {
+		result = append(result, item)
+	}
+
 	return result, nil
+
 }
 
-func (service *CheckoutServiceImpl) GetDetailCheckoutProductAdmin(productCheckoutId int) (map[string]interface{}, error) {
+func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId int) (map[string]interface{}, error) {
 	data, err := service.checkoutRepository.GetDetailProductCheckoutAdmin(productCheckoutId)
 	if err != nil {
 		return nil, err
@@ -246,7 +214,7 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProductAdmin(productCheckou
 	var deliveryStatuses []string
 
 	for _, item := range data {
-		if statusStr, ok := item["status"].(string); ok {
+		if statusStr, ok := item["delivery_status"].(string); ok {
 			if _, exists := deliveryStatusSet[statusStr]; !exists {
 				deliveryStatusSet[statusStr] = struct{}{}
 				deliveryStatuses = append(deliveryStatuses, statusStr)

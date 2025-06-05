@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 	"restfull-api-pjbl-2025/model"
 	"restfull-api-pjbl-2025/model/dto"
+	"time"
 )
 
 type CheckoutRepositoryImpl struct {
@@ -100,8 +101,14 @@ func (repo *CheckoutRepositoryImpl) SetDelivery(delivery *dto.SetDelivery, deliv
 	return nil
 }
 
-func (repo *CheckoutRepositoryImpl) SetStatusDelivery(status map[string]interface{}) error {
-	err := repo.db.Table("delivery_status").Create(status).Error
+func (repo *CheckoutRepositoryImpl) SetStatusDelivery(status string, createdAt time.Time, deliveryId int) error {
+	data := model.StatusDelivery{
+		Status:       status,
+		CreatedAt:    createdAt,
+		DeliveriesId: deliveryId,
+	}
+
+	err := repo.db.Table("delivery_status").Create(&data).Error
 	if err != nil {
 		return err
 	}
@@ -109,7 +116,7 @@ func (repo *CheckoutRepositoryImpl) SetStatusDelivery(status map[string]interfac
 	return nil
 }
 
-func (repo *CheckoutRepositoryImpl) GetCheckoutPending(param string, userId int) ([]map[string]interface{}, error) {
+func (repo *CheckoutRepositoryImpl) GetCheckout(param string, userId int) ([]map[string]interface{}, error) {
 	var data []map[string]interface{}
 
 	err := repo.db.Table("checkouts").
@@ -119,25 +126,6 @@ func (repo *CheckoutRepositoryImpl) GetCheckoutPending(param string, userId int)
 		Select("checkouts.snap_token as snap_token,checkouts.id as id,product_checkout.type as type, checkouts.order_id as order_id, checkouts.total_price as total_price, products.name as name, product_checkout.price as price, product_checkout.quantity as quantity, MIN(product_images.image_path) as image_path").
 		Where("checkouts.user_id = ? AND checkouts.status = ?", userId, param).
 		Group("checkouts.order_id, checkouts.id,product_checkout.type,product_checkout.id,products.id, products.name, product_checkout.price, product_checkout.quantity").
-		Find(&data).Error
-
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-func (repo *CheckoutRepositoryImpl) GetCheckoutNotPending(param string, userId int) ([]map[string]interface{}, error) {
-	var data []map[string]interface{}
-
-	err := repo.db.Table("checkouts").
-		Joins("LEFT JOIN product_checkout ON product_checkout.checkout_id = checkouts.id").
-		Joins("LEFT JOIN products ON products.id = product_checkout.product_id").
-		Joins("LEFT JOIN product_images ON product_images.product_id = products.id").
-		Select("checkouts.status as status,product_checkout.type as type,product_checkout.id as product_checkout_id,products.id as product_id, products.name as name, product_checkout.price as price, product_checkout.quantity as quantity, MIN(product_images.image_path) as image_path").
-		Where("checkouts.user_id = ? AND checkouts.status = ?", userId, param).
-		Group("checkouts.status, products.name,product_checkout.type,product_checkout.id,products.id, product_checkout.price, product_checkout.quantity").
 		Find(&data).Error
 
 	if err != nil {
@@ -203,7 +191,7 @@ func (repo *CheckoutRepositoryImpl) GetDetailProductCheckoutAdmin(productCheckou
 			"addresses.receiver_area as receiver_area,"+
 			"deliveries.send_start_time as send_start_time,"+
 			"deliveries.send_end_time as send_end_time,"+
-			"delivery_status.status as status,"+
+			"delivery_status.status as delivery_status,"+
 			"MIN(product_images.image_path) as image_path").
 		Where("checkouts.id = ?", productCheckoutId).
 		Group(`product_checkout.id, 

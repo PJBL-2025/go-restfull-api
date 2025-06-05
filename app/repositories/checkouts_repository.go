@@ -3,6 +3,7 @@ package repositories
 import (
 	"restfull-api-pjbl-2025/model"
 	"restfull-api-pjbl-2025/model/dto"
+	"time"
 )
 
 type CheckoutsRepository interface {
@@ -14,9 +15,8 @@ type CheckoutsRepository interface {
 	CreateStatusDelivery(status string, deliveryId int) error
 	UpdateStatusCheckout(checkout *dto.RequestUpdateCheckout) error
 	SetDelivery(delivery *dto.SetDelivery, deliveryId int) error
-	SetStatusDelivery(status map[string]interface{}) error
-	GetCheckoutPending(param string, userId int) ([]map[string]interface{}, error)
-	GetCheckoutNotPending(param string, userId int) ([]map[string]interface{}, error)
+	SetStatusDelivery(status string, createdAt time.Time, deliveryId int) error
+	GetCheckout(param string, userId int) ([]map[string]interface{}, error)
 	GetDetailProductCheckout(productCheckoutId int) ([]map[string]interface{}, error)
 	GetDetailProductCheckoutAdmin(productCheckoutId int) ([]map[string]interface{}, error)
 	GetCheckoutsAdmin() ([]map[string]interface{}, error)

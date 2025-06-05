@@ -16,7 +16,6 @@ func SetUpRoutes(app *fiber.App, chatController controllers.ChatsController, che
 	api.Patch("/order/update", checkoutController.UpdateStatusCheckout)
 	api.Get("/order/:status", checkoutController.GetCheckout)
 	api.Get("/order/detail/:id", checkoutController.GetDetailProductCheckout)
-	api.Get("/order/detail/admin/:id", checkoutController.GetDetailProductCheckoutAdmin)
 	api.Get("/order", checkoutController.GetCheckoutsAdmin)
 
 	api.Patch("/order/delivery/:id", checkoutController.SetDelivery)
