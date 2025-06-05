@@ -17,7 +17,12 @@ type CheckoutsRepository interface {
 	SetDelivery(delivery *dto.SetDelivery, deliveryId int) error
 	SetStatusDelivery(status string, createdAt time.Time, deliveryId int) error
 	GetCheckout(param string, userId int) ([]map[string]interface{}, error)
+	GetCheckoutAll(userId int) ([]map[string]interface{}, error)
 	GetDetailProductCheckout(productCheckoutId int) ([]map[string]interface{}, error)
 	GetDetailProductCheckoutAdmin(productCheckoutId int) ([]map[string]interface{}, error)
 	GetCheckoutsAdmin() ([]map[string]interface{}, error)
+	AddProduct(product *model.Product) (int, error)
+	AddProductSize(productSize map[string]interface{}) error
+	AddProductImage(productImage map[string]interface{}) error
+	AddProductCategory(productCategory map[string]interface{}) error
 }

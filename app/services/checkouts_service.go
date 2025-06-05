@@ -14,4 +14,5 @@ type CheckoutsService interface {
 	GetCheckout(param string, userId int) ([]map[string]interface{}, error)
 	GetDetailCheckoutProduct(productCheckoutId int) (map[string]interface{}, error)
 	GetCheckoutsAdmin() ([]map[string]interface{}, error)
+	AddProduct(product *dto.RequestProduct) error
 }

@@ -142,9 +142,16 @@ func (service *CheckoutServiceImpl) GetCheckout(param string, userId int) ([]map
 	var flatData []map[string]interface{}
 	var err error
 
-	flatData, err = service.checkoutRepository.GetCheckout(param, userId)
-	if err != nil {
-		return nil, err
+	if param != "all" {
+		flatData, err = service.checkoutRepository.GetCheckout(param, userId)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		flatData, err = service.checkoutRepository.GetCheckoutAll(userId)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	grouped := map[int]map[string]interface{}{}
@@ -265,4 +272,53 @@ func (service *CheckoutServiceImpl) GetCheckoutsAdmin() ([]map[string]interface{
 	}
 
 	return result, nil
+}
+
+func (service *CheckoutServiceImpl) AddProduct(product *dto.RequestProduct) error {
+	product.CreatedAt = time.Now()
+
+	addProduct := &model.Product{
+		Name:        product.Name,
+		Price:       product.Price,
+		Quantity:    product.Quantity,
+		Description: product.Description,
+		Weight:      product.Weight,
+		CreatedAt:   time.Now(),
+	}
+	productId, err := service.checkoutRepository.AddProduct(addProduct)
+	if err != nil {
+		return err
+	}
+
+	// Simpan gambar
+	productImage := map[string]interface{}{
+		"product_id": productId,
+		"image_path": product.Image,
+	}
+	if err := service.checkoutRepository.AddProductImage(productImage); err != nil {
+		return err
+	}
+
+	// Simpan ukuran produk
+	for _, size := range product.Size {
+		productSize := map[string]interface{}{
+			"product_id": productId,
+			"size_id":    size,
+		}
+		if err := service.checkoutRepository.AddProductSize(productSize); err != nil {
+			return err
+		}
+	}
+
+	for _, cat := range product.CategoryId {
+		productCategory := map[string]interface{}{
+			"product_id":  productId,
+			"category_id": cat,
+		}
+		if err := service.checkoutRepository.AddProductCategory(productCategory); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

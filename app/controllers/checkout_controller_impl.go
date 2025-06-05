@@ -130,3 +130,19 @@ func (controller *CheckoutsControllerImpl) GetCheckoutsAdmin(ctx *fiber.Ctx) err
 
 	return helper.SuccessResponse(ctx, data, "Success Get Checkout Admin")
 }
+
+func (controller *CheckoutsControllerImpl) AddProductCheckout(ctx *fiber.Ctx) error {
+	var product *dto.RequestProduct
+
+	err := ctx.BodyParser(&product)
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Parser request fails", err)
+	}
+
+	err = controller.checkoutService.AddProduct(product)
+	if err != nil {
+		return helper.ErrorResponse(ctx, 400, "Fail Add checkout product", err)
+	}
+
+	return helper.SuccessResponse(ctx, product, "Success Add")
+}

@@ -21,5 +21,7 @@ func SetUpRoutes(app *fiber.App, chatController controllers.ChatsController, che
 	api.Patch("/order/delivery/:id", checkoutController.SetDelivery)
 	api.Post("/order/delivery/status", checkoutController.SetStatusDelivery)
 
+	api.Post("/product", checkoutController.AddProductCheckout)
+
 	app.Get("/ws/chat", websocket.New(ws.WebSocketHub.HandleConnections))
 }

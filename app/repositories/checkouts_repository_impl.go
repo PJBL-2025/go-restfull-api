@@ -135,6 +135,25 @@ func (repo *CheckoutRepositoryImpl) GetCheckout(param string, userId int) ([]map
 	return data, nil
 }
 
+func (repo *CheckoutRepositoryImpl) GetCheckoutAll(userId int) ([]map[string]interface{}, error) {
+	var data []map[string]interface{}
+
+	err := repo.db.Table("checkouts").
+		Joins("LEFT JOIN product_checkout on product_checkout.checkout_id = checkouts.id").
+		Joins("LEFT JOIN products on products.id = product_checkout.product_id").
+		Joins("LEFT JOIN product_images on product_images.product_id = products.id").
+		Select("checkouts.snap_token as snap_token,checkouts.id as id,product_checkout.type as type, checkouts.order_id as order_id, checkouts.total_price as total_price, products.name as name, product_checkout.price as price, product_checkout.quantity as quantity, MIN(product_images.image_path) as image_path").
+		Where("checkouts.user_id = ?", userId).
+		Group("checkouts.order_id, checkouts.id,product_checkout.type,product_checkout.id,products.id, products.name, product_checkout.price, product_checkout.quantity").
+		Find(&data).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func (repo *CheckoutRepositoryImpl) GetDetailProductCheckout(productCheckoutId int) ([]map[string]interface{}, error) {
 	var data []map[string]interface{}
 
@@ -232,4 +251,38 @@ func (repo *CheckoutRepositoryImpl) GetCheckoutsAdmin() ([]map[string]interface{
 	}
 
 	return data, nil
+}
+
+func (repo *CheckoutRepositoryImpl) AddProduct(product *model.Product) (int, error) {
+	err := repo.db.Table("products").Create(product).Error
+	if err != nil {
+		return 0, err
+	}
+	return product.Id, nil
+}
+
+func (repo *CheckoutRepositoryImpl) AddProductSize(productSize map[string]interface{}) error {
+	err := repo.db.Table("product_size").Create(productSize).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *CheckoutRepositoryImpl) AddProductImage(productImage map[string]interface{}) error {
+
+	err := repo.db.Table("product_images").Create(productImage).Error
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func (repo *CheckoutRepositoryImpl) AddProductCategory(productCategory map[string]interface{}) error {
+	err := repo.db.Table("product_category").Create(productCategory).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
