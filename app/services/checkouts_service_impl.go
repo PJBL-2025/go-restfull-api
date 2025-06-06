@@ -205,11 +205,13 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 		"snap_token":  data[0]["snap_token"],
 	}
 
+	// Data pengguna
 	result["user"] = map[string]interface{}{
 		"name":     data[0]["name"],
 		"username": data[0]["username"],
 	}
 
+	// Alamat pengiriman
 	result["address"] = map[string]interface{}{
 		"address":          data[0]["address"],
 		"zip_code":         data[0]["zip_code"],
@@ -217,9 +219,9 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 		"receiver_area":    data[0]["receiver_area"],
 	}
 
+	// Status pengiriman (menghindari duplikat)
 	deliveryStatusSet := map[string]struct{}{}
 	var deliveryStatuses []string
-
 	for _, item := range data {
 		if statusStr, ok := item["delivery_status"].(string); ok {
 			if _, exists := deliveryStatusSet[statusStr]; !exists {
@@ -229,15 +231,24 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 		}
 	}
 
+	// Data pengiriman
 	result["deliveries"] = map[string]interface{}{
 		"send_start_time": data[0]["send_start_time"],
 		"send_end_time":   data[0]["send_end_time"],
-		"delivey_status":  deliveryStatuses,
+		"delivery_status": deliveryStatuses,
 	}
 
-	var productCheckouts []map[string]interface{}
+	// Menyusun data product_checkout tanpa duplikat
+	productCheckouts := []map[string]interface{}{}
+	productCheckoutMap := make(map[interface{}]bool) // untuk mengecek ID yang sudah ditambahkan
 
 	for _, item := range data {
+		productCheckoutID := item["product_checkout_id"] // hasil dari alias "product_checkout.id as id"
+
+		if _, exists := productCheckoutMap[productCheckoutID]; exists {
+			continue // skip jika sudah pernah ditambahkan
+		}
+
 		product := map[string]interface{}{
 			"quantity": item["quantity"],
 			"size":     item["size"],
@@ -246,6 +257,7 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 			"price":    item["price"],
 			"image":    item["image_path"],
 			"name":     item["product_name"],
+			"id":       item["product_checkout_id"], // id dari product_checkout
 		}
 
 		if item["type"] == "custom" {
@@ -258,6 +270,7 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 		}
 
 		productCheckouts = append(productCheckouts, product)
+		productCheckoutMap[productCheckoutID] = true
 	}
 
 	result["product_checkout"] = productCheckouts

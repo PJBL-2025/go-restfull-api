@@ -184,43 +184,48 @@ func (repo *CheckoutRepositoryImpl) GetDetailProductCheckoutAdmin(productCheckou
 		Joins("LEFT JOIN users ON users.id = checkouts.user_id").
 		Joins("LEFT JOIN products ON products.id = product_checkout.product_id").
 		Joins("LEFT JOIN product_custom ON product_custom.product_id = product_checkout.id").
+		Joins("LEFT JOIN product_images ON product_images.product_id = products.id").
 		Joins("LEFT JOIN deliveries ON deliveries.checkout_id = checkouts.id").
 		Joins("LEFT JOIN delivery_status ON delivery_status.deliveries_id = deliveries.id").
 		Joins("LEFT JOIN addresses ON addresses.id = checkouts.address_id").
-		Select(`product_checkout.id as id,
-        checkouts.order_id as order_id,
-        checkouts.status as status,
-        checkouts.total_price as total_price,
-        checkouts.snap_token as snap_token,
-        products.name as product_name,
-        product_checkout.quantity as quantity,
-        product_checkout.size as size,
-        product_checkout.type as type,
-        product_checkout.color as color,
-        product_checkout.price as price,
-        product_custom.front_image_path as front_image_path,
-        product_custom.back_image_path as back_image_path,
-        product_custom.back_width as back_width,
-        product_custom.front_width as front_width,
-        users.name as name,
-        users.username as username,
-        addresses.address as address,
-        addresses.zip_code as zip_code,
-        addresses.destination_code as destination_code,
-        addresses.receiver_area as receiver_area,
-        deliveries.send_start_time as send_start_time,
-        deliveries.send_end_time as send_end_time,
-        delivery_status.status as delivery_status,
-        (SELECT MIN(image_path) FROM product_images WHERE product_images.product_id = products.id) as image_path`).
+		Select("product_checkout.id as id,"+
+			"checkouts.order_id as order_id,"+
+			"checkouts.status as status,"+
+			"checkouts.total_price as total_price,"+
+			"checkouts.snap_token as snap_token,"+
+			"products.name as product_name,"+
+			"product_checkout.id as product_checkout_id,"+
+			"product_checkout.quantity as quantity,"+
+			"product_checkout.size as size,"+
+			"product_checkout.type as type,"+
+			"product_checkout.color as color,"+
+			"product_checkout.price as price,"+
+			"product_custom.front_image_path as front_image_path,"+
+			"product_custom.back_image_path as back_image_path,"+
+			"product_custom.back_width as back_width,"+
+			"product_custom.front_width as front_width,"+
+			"users.name as name,"+
+			"users.username as username,"+
+			"addresses.address as address,"+
+			"addresses.zip_code as zip_code,"+
+			"addresses.destination_code as destination_code,"+
+			"addresses.receiver_area as receiver_area,"+
+			"deliveries.send_start_time as send_start_time,"+
+			"deliveries.send_end_time as send_end_time,"+
+			"delivery_status.status as delivery_status,"+
+			"MIN(product_images.image_path) as image_path").
 		Where("checkouts.id = ?", productCheckoutId).
-		Group(`product_checkout.id, checkouts.order_id, checkouts.status, checkouts.total_price, checkouts.snap_token,
-        product_checkout.quantity, product_checkout.size, product_checkout.type, product_checkout.color, product_checkout.price,
-        product_custom.front_image_path, product_custom.back_image_path, product_custom.back_width, product_custom.front_width,
-        users.name, users.username,
-        addresses.address, addresses.zip_code, addresses.destination_code, addresses.receiver_area,
-        deliveries.send_start_time, deliveries.send_end_time,
-        delivery_status.status,
-        products.name, products.id`).
+		Group("product_checkout.id, " +
+			"checkouts.order_id, checkouts.status, checkouts.total_price, checkouts.snap_token, " +
+			"product_checkout.quantity, product_checkout.size, product_checkout.type, " +
+			"product_checkout.color, product_checkout.price, " +
+			"product_custom.front_image_path, product_custom.back_image_path, " +
+			"product_custom.back_width, product_custom.front_width, " +
+			"users.name, users.username, " +
+			"addresses.address, addresses.zip_code, addresses.destination_code, addresses.receiver_area, " +
+			"deliveries.send_start_time, deliveries.send_end_time, " +
+			"delivery_status.status, " +
+			"products.name, products.price, product_checkout.id").
 		Find(&data).Error
 
 	if err != nil {
