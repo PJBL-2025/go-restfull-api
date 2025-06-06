@@ -20,7 +20,7 @@ func SetUpRoutes(app *fiber.App, chatController controllers.ChatsController, che
 
 	api.Patch("/order/delivery/:id", checkoutController.SetDelivery)
 	api.Post("/order/delivery/status", checkoutController.SetStatusDelivery)
-
+	
 	api.Post("/product", productController.AddProductCheckout)
 	api.Patch("/product/:id", productController.UpdateProduct)
 

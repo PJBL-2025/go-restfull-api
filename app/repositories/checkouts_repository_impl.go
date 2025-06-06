@@ -193,6 +193,7 @@ func (repo *CheckoutRepositoryImpl) GetDetailProductCheckoutAdmin(productCheckou
 			"checkouts.status as status,"+
 			"checkouts.total_price as total_price,"+
 			"checkouts.snap_token as snap_token,"+
+			"products.name as product_name,"+
 			"product_checkout.quantity as quantity,"+
 			"product_checkout.size as size,"+
 			"product_checkout.type as type,"+
@@ -223,7 +224,7 @@ func (repo *CheckoutRepositoryImpl) GetDetailProductCheckoutAdmin(productCheckou
 	addresses.address, addresses.zip_code, addresses.destination_code, addresses.receiver_area,
 	deliveries.send_start_time, deliveries.send_end_time,
 	delivery_status.status,
-	products.name, products.price`).
+	products.name, products.price, products.name`).
 		Find(&data).Error
 
 	if err != nil {

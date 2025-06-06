@@ -245,6 +245,7 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 			"type":     item["type"],
 			"price":    item["price"],
 			"image":    item["image_path"],
+			"name":     item["product_name"],
 		}
 
 		if item["type"] == "custom" {
