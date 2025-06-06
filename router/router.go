@@ -8,7 +8,7 @@ import (
 	"restfull-api-pjbl-2025/ws"
 )
 
-func SetUpRoutes(app *fiber.App, chatController controllers.ChatsController, checkoutController controllers.CheckoutsController) {
+func SetUpRoutes(app *fiber.App, chatController controllers.ChatsController, checkoutController controllers.CheckoutsController, productController controllers.ProductController) {
 	api := app.Group("/api", middleware.AuthMiddleware())
 	api.Post("/chat/user", chatController.CreateChatsUser)
 	api.Get("/chat/user", chatController.GetAllChatsUser)
@@ -21,7 +21,8 @@ func SetUpRoutes(app *fiber.App, chatController controllers.ChatsController, che
 	api.Patch("/order/delivery/:id", checkoutController.SetDelivery)
 	api.Post("/order/delivery/status", checkoutController.SetStatusDelivery)
 
-	api.Post("/product", checkoutController.AddProductCheckout)
+	api.Post("/product", productController.AddProductCheckout)
+	api.Patch("/product/:id", productController.UpdateProduct)
 
 	app.Get("/ws/chat", websocket.New(ws.WebSocketHub.HandleConnections))
 }

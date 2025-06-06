@@ -252,37 +252,3 @@ func (repo *CheckoutRepositoryImpl) GetCheckoutsAdmin() ([]map[string]interface{
 
 	return data, nil
 }
-
-func (repo *CheckoutRepositoryImpl) AddProduct(product *model.Product) (int, error) {
-	err := repo.db.Table("products").Create(product).Error
-	if err != nil {
-		return 0, err
-	}
-	return product.Id, nil
-}
-
-func (repo *CheckoutRepositoryImpl) AddProductSize(productSize map[string]interface{}) error {
-	err := repo.db.Table("product_size").Create(productSize).Error
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (repo *CheckoutRepositoryImpl) AddProductImage(productImage map[string]interface{}) error {
-
-	err := repo.db.Table("product_images").Create(productImage).Error
-	if err != nil {
-		return err
-	}
-	return nil
-
-}
-
-func (repo *CheckoutRepositoryImpl) AddProductCategory(productCategory map[string]interface{}) error {
-	err := repo.db.Table("product_category").Create(productCategory).Error
-	if err != nil {
-		return err
-	}
-	return nil
-}

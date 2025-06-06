@@ -21,8 +21,4 @@ type CheckoutsRepository interface {
 	GetDetailProductCheckout(productCheckoutId int) ([]map[string]interface{}, error)
 	GetDetailProductCheckoutAdmin(productCheckoutId int) ([]map[string]interface{}, error)
 	GetCheckoutsAdmin() ([]map[string]interface{}, error)
-	AddProduct(product *model.Product) (int, error)
-	AddProductSize(productSize map[string]interface{}) error
-	AddProductImage(productImage map[string]interface{}) error
-	AddProductCategory(productCategory map[string]interface{}) error
 }

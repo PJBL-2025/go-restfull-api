@@ -12,5 +12,4 @@ type CheckoutsController interface {
 	GetCheckout(ctx *fiber.Ctx) error
 	GetDetailProductCheckout(ctx *fiber.Ctx) error
 	GetCheckoutsAdmin(ctx *fiber.Ctx) error
-	AddProductCheckout(ctx *fiber.Ctx) error
 }

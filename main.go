@@ -24,7 +24,7 @@ func main() {
 	}
 
 	config.SeedFlag()
-	chatController, checkoutController := config.DependencyInjection(config.DB, snapClient)
+	chatController, checkoutController, productController := config.DependencyInjection(config.DB, snapClient)
 
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
@@ -34,7 +34,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	router.SetUpRoutes(app, chatController, checkoutController)
+	router.SetUpRoutes(app, chatController, checkoutController, productController)
 
 	fmt.Println("success")
 
