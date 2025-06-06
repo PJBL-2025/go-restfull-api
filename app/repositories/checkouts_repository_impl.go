@@ -211,9 +211,10 @@ func (repo *CheckoutRepositoryImpl) GetDetailProductCheckoutAdmin(productCheckou
 			"addresses.destination_code as destination_code,"+
 			"addresses.receiver_area as receiver_area,"+
 			"deliveries.send_start_time as send_start_time,"+
+			"deliveries.id as delivery_id",
 			"deliveries.send_end_time as send_end_time,"+
-			"delivery_status.status as delivery_status,"+
-			"MIN(product_images.image_path) as image_path").
+				"delivery_status.status as delivery_status,"+
+				"MIN(product_images.image_path) as image_path").
 		Where("checkouts.id = ?", productCheckoutId).
 		Group("product_checkout.id, " +
 			"checkouts.order_id, checkouts.status, checkouts.total_price, checkouts.snap_token, " +
@@ -225,7 +226,7 @@ func (repo *CheckoutRepositoryImpl) GetDetailProductCheckoutAdmin(productCheckou
 			"addresses.address, addresses.zip_code, addresses.destination_code, addresses.receiver_area, " +
 			"deliveries.send_start_time, deliveries.send_end_time, " +
 			"delivery_status.status, " +
-			"products.name, products.price, product_checkout.id").
+			"products.name, products.price, product_checkout.id, deliveries.id").
 		Find(&data).Error
 
 	if err != nil {

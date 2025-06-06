@@ -236,6 +236,7 @@ func (service *CheckoutServiceImpl) GetDetailCheckoutProduct(productCheckoutId i
 		"send_start_time": data[0]["send_start_time"],
 		"send_end_time":   data[0]["send_end_time"],
 		"delivery_status": deliveryStatuses,
+		"id":              data[0]["delivery_id"],
 	}
 
 	// Menyusun data product_checkout tanpa duplikat
