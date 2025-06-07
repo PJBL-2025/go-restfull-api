@@ -152,3 +152,12 @@ func (service *ProductServiceImpl) UpdateProduct(product *dto.RequestProduct) er
 
 	return nil
 }
+
+func (service *ProductServiceImpl) GetAllCategories() ([]dto.Category, error) {
+	data, err := service.productRepository.GetAllCategories()
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}

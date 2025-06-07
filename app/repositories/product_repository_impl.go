@@ -113,3 +113,12 @@ func (repo *ProductRepositoryImpl) FindRequestProductByID(id int) (*dto.RequestP
 		CreatedAt:   product.CreatedAt,
 	}, nil
 }
+
+func (repo *ProductRepositoryImpl) GetAllCategories() ([]dto.Category, error) {
+	var categories []dto.Category
+	err := repo.db.Table("categories").Find(&categories).Error
+	if err != nil {
+		return nil, err
+	}
+	return categories, nil
+}

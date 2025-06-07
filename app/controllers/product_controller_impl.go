@@ -54,3 +54,12 @@ func (controller *ProductControllerImpl) UpdateProduct(ctx *fiber.Ctx) error {
 
 	return helper.SuccessResponse(ctx, product, "Success Update")
 }
+
+func (controller *ProductControllerImpl) GetAllCategories(ctx *fiber.Ctx) error {
+	data, err := controller.productService.GetAllCategories()
+	if err != nil {
+		return helper.ErrorResponse(ctx, 500, "Fail get all categories", err)
+	}
+
+	return helper.SuccessResponse(ctx, data, "Success GetAllCategories")
+}

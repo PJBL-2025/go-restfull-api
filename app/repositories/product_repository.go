@@ -16,4 +16,6 @@ type ProductRepository interface {
 	DeleteProductCategoryByProductID(productId int) error
 	UpdateProductImage(productImage map[string]interface{}) error
 	FindRequestProductByID(productId int) (*dto.RequestProduct, error)
+
+	GetAllCategories() ([]dto.Category, error)
 }
