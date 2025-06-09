@@ -6,7 +6,7 @@ import (
 )
 
 type CheckoutsService interface {
-	CreateOrderUser(userId int, checkout *map[string]interface{}) (string, string, error)
+	CreateOrderUser(userId int, checkout *map[string]interface{}) (int, string, string, error)
 	CreateOrderCustom(productCheckout []interface{}, checkoutId int) error
 	UpdateStatusCheckout(checkout *dto.RequestUpdateCheckout) error
 	SetDelivery(delivery *dto.SetDelivery, deliveryId int) error

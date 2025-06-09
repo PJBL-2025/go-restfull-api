@@ -24,7 +24,7 @@ func NewCheckoutServiceImpl(checkoutRepository repositories.CheckoutsRepository,
 	}
 }
 
-func (service *CheckoutServiceImpl) CreateOrderUser(userId int, checkout *map[string]interface{}) (string, string, error) {
+func (service *CheckoutServiceImpl) CreateOrderUser(userId int, checkout *map[string]interface{}) (int, string, string, error) {
 	fmt.Println("CreateOrderUser")
 	orderId := helper.GenerateOrderID()
 	totalPrice := int((*checkout)["total_price"].(float64))
@@ -33,13 +33,13 @@ func (service *CheckoutServiceImpl) CreateOrderUser(userId int, checkout *map[st
 
 	checkoutId, err := service.checkoutRepository.CreateCheckout(userId, totalPrice, addressId, orderId)
 	if err != nil {
-		return "", "", err
+		return 0, "", "", err
 	}
 
 	fmt.Println(checkoutId)
 	err = service.CreateOrderCustom(productCheckout, checkoutId)
 	if err != nil {
-		return "", "", err
+		return 0, "", "", err
 	}
 
 	req := &snap.Request{
@@ -52,9 +52,9 @@ func (service *CheckoutServiceImpl) CreateOrderUser(userId int, checkout *map[st
 	fmt.Println(err)
 	err = service.checkoutRepository.InsertSnapToken(checkoutId, snapResponse.Token)
 	if err != nil {
-		return "", "", err
+		return 0, "", "", err
 	}
-	return snapResponse.RedirectURL, snapResponse.Token, nil
+	return checkoutId, snapResponse.RedirectURL, snapResponse.Token, nil
 }
 
 func (service *CheckoutServiceImpl) CreateOrderCustom(productCheckout []interface{}, checkoutId int) error {

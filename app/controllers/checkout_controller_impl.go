@@ -26,14 +26,19 @@ func (controller *CheckoutsControllerImpl) CreateOrderProduct(ctx *fiber.Ctx) er
 		return helper.ErrorResponse(ctx, 400, "Parser request", err)
 	}
 
-	paymentURL, snapToken, err := controller.checkoutService.CreateOrderUser(userId, &checkout)
+	checkoutId, paymentURL, snapToken, err := controller.checkoutService.CreateOrderUser(userId, &checkout)
 	if err != nil {
 		return helper.ErrorResponse(ctx, 400, "Fail Create order", err)
 	}
 
-	response := map[string]interface{}{
+	payment := map[string]interface{}{
 		"payment_url": paymentURL,
 		"snap_token":  snapToken,
+	}
+
+	response := map[string]interface{}{
+		"checkout_id": checkoutId,
+		"payment":     payment,
 	}
 
 	return helper.SuccessResponse(ctx, response, "Success Checkout")
